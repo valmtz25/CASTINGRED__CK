@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="TP1/favicon.icon" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso Administrador - Castingred</title>
@@ -102,19 +102,21 @@
             100% { transform:rotate(360deg);}
         }
 
-        /* Botón atrás */
+        /* Botón Volver */
         .back-btn {
-            margin-top: 18px;
-            display: inline-block;
-            padding: 10px 18px;
+            display:block;
+            margin:20px auto 0 auto;
+            padding:12px;
+            width:100%;
+            max-width:200px;
             background:#333;
             color:white;
-            border-radius:10px;
-            font-size:0.95rem;
+            border-radius:12px;
             text-decoration:none;
+            font-size:1rem;
+            text-align:center;
             transition:0.3s;
         }
-
         .back-btn:hover {
             background:#000;
         }
@@ -122,7 +124,7 @@
         /* Responsive */
         @media (max-width: 400px) {
             h2 { font-size: 1.6rem; }
-            input, button { padding: 10px; font-size: 0.95rem; }
+            input, button, .back-btn { padding: 10px; font-size: 0.95rem; }
         }
     </style>
 </head>
@@ -141,8 +143,8 @@
         <div class="loader-circle"></div>
     </div>
 
-    <!-- Botón atrás -->
-    <a href="index.html" class="back-btn">⟵ Volver</a>
+    <!-- Botón volver al index -->
+    <a href="index.html" class="back-btn">⟵ Volver al Inicio</a>
 </div>
 
 <script type="module">
@@ -195,4 +197,3 @@ form.addEventListener("submit", async (e)=>{
 
 </body>
 </html>
-
