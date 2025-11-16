@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Actores - Castingred</title>
+
+<!-- Fuente atractiva para el título -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+
+<style>
+/* Body igual al login */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0; padding: 0;
+  background: linear-gradient(135deg, #fcb69f, #ffecd2);
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+/* Título con fuente atractiva */
+h2 {
+  font-family: 'Montserrat', sans-serif;
+  margin-bottom: 20px;
+  color:#333;
+  font-weight:700;
+  text-align:center;
+  font-size: 3rem;
+}
+
+/* Botón cerrar sesión */
+#cerrarSesion {
+  display:block;
+  margin: 0 auto 30px auto;
+  padding: 12px;
+  width: 200px;
+  border-radius:12px;
+  border:none;
+  background-color:#ff7e5f;
+  color:white;
+  font-size:1rem;
+  cursor:pointer;
+  transition:0.3s;
+}
+#cerrarSesion:hover { background-color:#ff5a36; }
+
+/* Contenedores de listas */
+#listas {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 90%;
+  max-width: 1200px;
+}
+.lista-container {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+}
+.lista-container h3 {
+  margin-bottom: 15px;
+  color: #333;
+  font-family: 'Montserrat', sans-serif; /* Mantener coherencia */
+}
+
+/* Lista de perfiles */
+.lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Tarjetas de actor */
+.perfil {
+  background: white;
+  padding: 15px;
+  border-radius: 15px;
+  width: 220px;
+  border-left: 6px solid #ff7e5f;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.perfil img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+.perfil h4 { margin:5px 0; font-size:1.2rem; color:#333; font-family: 'Montserrat', sans-serif; }
+.perfil p { margin:3px 0; font-size:0.9rem; color:#555; font-family: 'Segoe UI', sans-serif; }
+.perfil a { color:#ff7e5f; text-decoration: none; }
+
+/* Botones en la tarjeta */
+.perfil button {
+  width: 100%;
+  margin-top: 5px;
+  padding: 8px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.3s;
+}
+.perfil button.aprobar { background-color: #4caf50; color:white; }
+.perfil button.rechazar { background-color: #f44336; color:white; }
+.perfil button.eliminar { background-color: #607d8b; color:white; }
+.perfil button:hover { opacity:0.85; }
+
+</style>
+</head>
+<body>
+
+<h2>🎬 Panel de Actores</h2>
+<button id="cerrarSesion">Cerrar sesión</button>
+
+<div id="listas">
+  <div class="lista-container">
+    <h3>Pendientes</h3>
+    <div id="pendientes" class="lista"></div>
+  </div>
+  <div class="lista-container">
+    <h3>Aprobados</h3>
+    <div id="aprobados" class="lista"></div>
+  </div>
+  <div class="lista-container">
+    <h3>Rechazados</h3>
+    <div id="rechazados" class="lista"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+// Config Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyBQmYwkqr29lvaF8ew3BJ2suc5UxRaVU1Y",
+    authDomain: "castingred-a6f6e.firebaseapp.com",
+    projectId: "castingred-a6f6e",
+    storageBucket: "castingred-a6f6e.appspot.com",
+    messagingSenderId: "61701399093",
+    appId: "1:61701399093:web:678b77ff06ce83e1a1077c",
+    measurementId: "G-J1QPG9HXGZ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const pendientesDiv = document.getElementById("pendientes");
+const aprobadosDiv = document.getElementById("aprobados");
+const rechazadosDiv = document.getElementById("rechazados");
+
+function crearTarjeta(actor, id) {
+  const div = document.createElement("div");
+  div.className = "perfil";
+  div.innerHTML = `
+    <img src="${actor.foto}" alt="${actor.nombreCompleto}">
+    <h4>${actor.nombreCompleto}</h4>
+    <p>Edad: ${actor.edad}</p>
+    <p>Género: ${actor.genero}</p>
+    <p>Tel: ${actor.telefono}</p>
+    <p>Correo: ${actor.correo}</p>
+    <p>Experiencia: ${actor.experiencia || '-'}</p>
+    <p>Rol: ${actor.rolPreferido || '-'}</p>
+    <p>Portafolio: ${actor.portafolioDigital ? `<a href="${actor.portafolioDigital}" target="_blank">Ver</a>` : '-'}</p>
+    <button class="aprobar">Aprobar</button>
+    <button class="rechazar">Rechazar</button>
+    <button class="eliminar">Eliminar</button>
+  `;
+
+  div.querySelector(".aprobar").addEventListener("click", async ()=>{ await updateDoc(doc(db, "actores", id), { estado: "aprobados" }); });
+  div.querySelector(".rechazar").addEventListener("click", async ()=>{ await updateDoc(doc(db, "actores", id), { estado: "rechazados" }); });
+  div.querySelector(".eliminar").addEventListener("click", async ()=>{ if(confirm("¿Eliminar actor?")){ await deleteDoc(doc(db, "actores", id)); } });
+
+  return div;
+}
+
+onSnapshot(collection(db, "actores"), snapshot=>{
+  pendientesDiv.innerHTML = "";
+  aprobadosDiv.innerHTML = "";
+  rechazadosDiv.innerHTML = "";
+
+  snapshot.forEach(docSnap=>{
+    const actor = docSnap.data();
+    const tarjeta = crearTarjeta(actor, docSnap.id);
+
+    if(actor.estado === "pendientes") pendientesDiv.appendChild(tarjeta);
+    else if(actor.estado === "aprobados") aprobadosDiv.appendChild(tarjeta);
+    else if(actor.estado === "rechazados") rechazadosDiv.appendChild(tarjeta);
+  });
+});
+
+document.getElementById("cerrarSesion").addEventListener("click", ()=>{ signOut(auth).then(()=>window.location.href="login.html"); });
+</script>
+
+</body>
+</html>
