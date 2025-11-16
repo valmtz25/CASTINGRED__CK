@@ -102,7 +102,24 @@
             100% { transform:rotate(360deg);}
         }
 
-        /* Responsive para móviles */
+        /* Botón atrás */
+        .back-btn {
+            margin-top: 18px;
+            display: inline-block;
+            padding: 10px 18px;
+            background:#333;
+            color:white;
+            border-radius:10px;
+            font-size:0.95rem;
+            text-decoration:none;
+            transition:0.3s;
+        }
+
+        .back-btn:hover {
+            background:#000;
+        }
+
+        /* Responsive */
         @media (max-width: 400px) {
             h2 { font-size: 1.6rem; }
             input, button { padding: 10px; font-size: 0.95rem; }
@@ -123,6 +140,9 @@
     <div id="loader">
         <div class="loader-circle"></div>
     </div>
+
+    <!-- Botón atrás -->
+    <a href="inicio.html" class="back-btn">⟵ Volver</a>
 </div>
 
 <script type="module">
@@ -157,7 +177,6 @@ form.addEventListener("submit", async (e)=>{
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
 
-        // Solo el correo de administrador puede entrar
         if(userCredential.user.email === "vm20936@gmail.com"){
             window.location.href = "paneldeactores.html";
         } else {
